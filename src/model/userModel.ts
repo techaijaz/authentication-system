@@ -90,10 +90,6 @@ const userSchema = new mongoose.Schema<IUser>(
             token: {
                 type: String,
                 default: null
-            },
-            expiry: {
-                type: Number,
-                default: null
             }
         },
         lastLoginAt: {

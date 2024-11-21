@@ -12,8 +12,8 @@ export default {
             throw error
         }
     },
-    findUserByEmail: (email: string) => {
-        return userModel.findOne({ email })
+    findUserByEmail: (email: string, select: string = '') => {
+        return userModel.findOne({ email }).select(select)
     },
     registerUser: (user: IUser) => {
         return userModel.create(user)

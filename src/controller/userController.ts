@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express'
 import httpResponse from '../util/httpResponse'
 import responceseMessage from '../constent/responceseMessage'
 import httpError from '../util/httpError'
-import { IRegisterRequestBody, IUser } from '../types/userTypes'
-import { validateJoiSchema, validationRegisterBody } from '../service/validationService'
+import { ILoginRequestBody, IRegisterRequestBody, IUser } from '../types/userTypes'
+import { validateJoiSchema, validationLoginBody, validationRegisterBody } from '../service/validationService'
 import quiker from '../util/quiker'
 import databseService from '../service/databseService'
 import { EUserRole } from '../constent/userConstent'
@@ -13,11 +13,14 @@ import loger from '../util/loger'
 import config from '../config/config'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-
+import { EApplicationEnvionment } from '../constent/application'
 dayjs.extend(utc)
 
 interface IRegisterRequest extends Request {
     body: IRegisterRequestBody
+}
+interface ILoginRequest extends Request {
+    body: ILoginRequestBody
 }
 
 interface IConfirmRequest extends Request {
@@ -85,8 +88,7 @@ export default {
                     lastResetAt: null
                 },
                 refreshToken: {
-                    token: null,
-                    expiry: null
+                    token: null
                 },
                 lastLoginAt: null,
                 role: EUserRole.USER,
@@ -138,6 +140,78 @@ export default {
             emailService.sendEmail(to, subject, text).catch((error) => loger.error('EMAIL_SERVICE', { meta: error }))
             httpResponse(req, res, 200, responceseMessage.SUCCESS, {
                 params
+            })
+        } catch (error) {
+            httpError(next, error, req, 500)
+        }
+    },
+    login: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // TODO
+            // * validate and parse body
+            const { body } = req as ILoginRequest
+            const { error, value } = validateJoiSchema<ILoginRequestBody>(validationLoginBody, body)
+            if (error) {
+                return httpError(next, error, req, 422)
+            }
+
+            const { email, password } = value
+            // * finnd user by email
+            const user = await databseService.findUserByEmail(email, '+password')
+            // * validate password
+            if (!user) {
+                return httpError(next, new Error(responceseMessage.NOT_FOUND('User')), req, 404)
+            }
+            const isPasswordMatch = await quiker.comparePassword(password, user.password)
+            if (!isPasswordMatch) {
+                return httpError(next, new Error(responceseMessage.INVALID_CREDENTIALS), req, 404)
+            }
+            // * generate token
+            const accessToken = quiker.genrateToken(
+                { userId: user._id, role: user.role },
+                config.ACCESS_TOKEN.SECRET as string,
+                config.ACCESS_TOKEN.EXPIRY
+            )
+
+            const refreshToken = quiker.genrateToken(
+                { userId: user._id, role: user.role },
+                config.REFRESH_TOKEN.SECRET as string,
+                config.REFRESH_TOKEN.EXPIRY
+            )
+            // * last login
+            user.lastLoginAt = dayjs().utc().toDate()
+            await user.save()
+            // * tokens save
+
+            user.refreshToken.token = refreshToken
+            await user.save()
+
+            // * cookie send
+            let DOMAIN = ''
+            try {
+                const url = new URL(req.url, config.SERVER_URL)
+                DOMAIN = url.hostname
+            } catch (error) {
+                loger.error('COOKIES', { meta: error })
+            }
+            res.cookie('accessToken', accessToken, {
+                path: '/api/v1',
+                domain: DOMAIN,
+                sameSite: 'strict',
+                maxAge: 10000 * config.ACCESS_TOKEN.EXPIRY,
+                httpOnly: true,
+                secure: !(config.ENV === EApplicationEnvionment.PRODUCTION)
+            }).cookie('refreshToken', refreshToken, {
+                path: '/api/v1',
+                domain: DOMAIN,
+                sameSite: 'strict',
+                maxAge: 10000 * config.REFRESH_TOKEN.EXPIRY,
+                httpOnly: true,
+                secure: !(config.ENV === EApplicationEnvionment.PRODUCTION)
+            })
+            httpResponse(req, res, 200, responceseMessage.SUCCESS, {
+                accessToken,
+                refreshToken
             })
         } catch (error) {
             httpError(next, error, req, 500)

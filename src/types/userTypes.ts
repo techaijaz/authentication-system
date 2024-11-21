@@ -8,6 +8,11 @@ export interface IRegisterRequestBody {
     consent: boolean
 }
 
+export interface ILoginRequestBody {
+    email: string
+    password: string
+}
+
 export interface IUser {
     name: string
     email: string
@@ -33,7 +38,6 @@ export interface IUser {
     }
     refreshToken: {
         token: string | null
-        expiry: number | null
     }
     lastLoginAt: Date | null
 }

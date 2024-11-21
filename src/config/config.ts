@@ -15,5 +15,17 @@ export default {
     FRONTEND_URL: process.env.FRONTEND_URL,
 
     //email service
-    EMAIL_SERVICE_API_KEY: process.env.EMAIL_SERVICE_API_KEY
+    EMAIL_SERVICE_API_KEY: process.env.EMAIL_SERVICE_API_KEY,
+
+    //ACCESS_TOKEN_SECRET
+    ACCESS_TOKEN: {
+        SECRET: process.env.ACCESS_TOKEN_SECRET,
+        EXPIRY: 3600
+    },
+
+    //REFRESH_TOKEN_SECRET
+    REFRESH_TOKEN: {
+        SECRET: process.env.REFRESH_TOKEN_SECRET,
+        EXPIRY: 3600 * 24
+    }
 }
