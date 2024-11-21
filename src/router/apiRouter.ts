@@ -11,5 +11,6 @@ router.route('/health').get(apiController.health)
 
 //User router
 router.route('/register').post(userController.register)
+router.route('/confirmation/:token').put(userController.confirmation)
 
 export default router

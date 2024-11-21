@@ -6,5 +6,7 @@ export default {
     INCORECT_PHONE_NUMBER: 'Incorect phone number',
     ALREADY_EXIST: (entity: string, identifire: string) => {
         return `${entity} is already exist with ${identifire}`
-    }
+    },
+    INVALID_ACCOUNT_CONFIRMATION_TOKEN_OR_CODE: 'Invalid account confirmation token or code',
+    ACCOUNT_ALREADY_CONFIRMED: 'Account already confirmed'
 }

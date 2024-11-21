@@ -11,9 +11,22 @@ import { EUserRole } from '../constent/userConstent'
 import emailService from '../service/emailService'
 import loger from '../util/loger'
 import config from '../config/config'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
 
 interface IRegisterRequest extends Request {
     body: IRegisterRequestBody
+}
+
+interface IConfirmRequest extends Request {
+    prams: {
+        token: string
+    }
+    query: {
+        code: string
+    }
 }
 
 export default {
@@ -94,6 +107,38 @@ export default {
             emailService.sendEmail(to, subject, text).catch((error) => loger.error('EMAIL_SERVICE', { meta: error }))
 
             httpResponse(req, res, 201, responceseMessage.SUCCESS, { _id: newUser._id, email: newUser.email, role: newUser.role })
+        } catch (error) {
+            httpError(next, error, req, 500)
+        }
+    },
+    confirmation: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { params, query } = req as IConfirmRequest
+            //Todo
+            // * confirm user by token and code
+            const user = await databseService.findUserByConfirmationTokenAndCode(params.token, query.code)
+            if (!user) {
+                return httpError(next, new Error(responceseMessage.INVALID_ACCOUNT_CONFIRMATION_TOKEN_OR_CODE), req, 422)
+            }
+
+            //  * account is already confirmed
+            if (user.accountConfirmation.status) {
+                return httpError(next, new Error(responceseMessage.ACCOUNT_ALREADY_CONFIRMED), req, 422)
+            }
+
+            // * confirm user
+            user.accountConfirmation.status = true
+            user.accountConfirmation.timestamp = dayjs().utc().toDate()
+            await user.save()
+
+            // * send confirmation email
+            const to = [user.email]
+            const subject = 'Account Confirmed'
+            const text = `Hey ${user.name}, Your account has been successfully confirmed.\n\n`
+            emailService.sendEmail(to, subject, text).catch((error) => loger.error('EMAIL_SERVICE', { meta: error }))
+            httpResponse(req, res, 200, responceseMessage.SUCCESS, {
+                params
+            })
         } catch (error) {
             httpError(next, error, req, 500)
         }
