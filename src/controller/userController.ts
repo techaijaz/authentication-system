@@ -32,6 +32,9 @@ interface IConfirmRequest extends Request {
     }
 }
 
+interface ISelfIdentificationRequest extends Request {
+    authenticatedUser: IUser
+}
 export default {
     register: async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -213,6 +216,14 @@ export default {
                 accessToken,
                 refreshToken
             })
+        } catch (error) {
+            httpError(next, error, req, 500)
+        }
+    },
+    selfIdentification: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { authenticatedUser } = req as ISelfIdentificationRequest
+            httpResponse(req, res, 200, responceseMessage.SUCCESS, authenticatedUser)
         } catch (error) {
             httpError(next, error, req, 500)
         }

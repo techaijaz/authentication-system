@@ -15,6 +15,9 @@ export default {
     findUserByEmail: (email: string, select: string = '') => {
         return userModel.findOne({ email }).select(select)
     },
+    findUserById: (id: string) => {
+        return userModel.findById(id)
+    },
     registerUser: (user: IUser) => {
         return userModel.create(user)
     },

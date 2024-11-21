@@ -4,10 +4,12 @@ import router from './router/apiRouter'
 import globalErrorHandler, { notFoundError } from './middleware/globalErrorHandler'
 import helmet from 'helmet'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 const app: Application = express()
 //Middlewares
 app.use(helmet())
+app.use(cookieParser())
 app.use(
     cors({
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],

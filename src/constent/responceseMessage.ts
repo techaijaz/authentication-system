@@ -9,5 +9,6 @@ export default {
     },
     INVALID_ACCOUNT_CONFIRMATION_TOKEN_OR_CODE: 'Invalid account confirmation token or code',
     ACCOUNT_ALREADY_CONFIRMED: 'Account already confirmed',
-    INVALID_CREDENTIALS: 'Invalid E-mail or Password, Please try again.'
+    INVALID_CREDENTIALS: 'Invalid E-mail or Password, Please try again.',
+    UNAUTHORIZED: 'Unauthorized, please login first'
 }
