@@ -15,8 +15,8 @@ export default {
     findUserByEmail: (email: string, select: string = '') => {
         return userModel.findOne({ email }).select(select)
     },
-    findUserById: (id: string) => {
-        return userModel.findById(id)
+    findUserById: (id: string, select: string = '') => {
+        return userModel.findById(id).select(select)
     },
     registerUser: (user: IUser) => {
         return userModel.create(user)
@@ -26,5 +26,21 @@ export default {
             'accountConfirmation.token': token,
             'accountConfirmation.code': code
         })
+    },
+    findUserByPasswordResetToken: (token: string) => {
+        return userModel.findOne({
+            'passwordReset.token': token
+        })
+    },
+    deleteRefreshToken: (token: string) => {
+        return userModel.findOneAndUpdate(
+            { 'refreshToken.token': token }, // Find user with the given refresh token
+            { $set: { 'refreshToken.token': null } } // Set the token field to null
+        )
+    },
+    getRefreshTokan: (token: string) => {
+        return userModel.findOne(
+            { 'refreshToken.token': token } // Find user with the given refresh token
+        )
     }
 }

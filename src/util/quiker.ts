@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt'
 import { v4 } from 'uuid'
 import { randomInt } from 'crypto'
 import jwt from 'jsonwebtoken'
+import dayjs from 'dayjs'
 
 export default {
     getSystemHealth: () => {
@@ -70,5 +71,16 @@ export default {
     },
     verifyToken: (token: string, secret: string) => {
         return jwt.verify(token, secret)
+    },
+    getDomainFromUrl: (requesturl: string) => {
+        try {
+            const url = new URL(requesturl, config.SERVER_URL)
+            return url.hostname
+        } catch (error) {
+            throw error
+        }
+    },
+    generateResetPasswordExpiry: (minute: number) => {
+        return dayjs().valueOf() + minute * 60 * 1000
     }
 }

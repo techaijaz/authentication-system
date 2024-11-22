@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken'
 import { EUserRole } from '../constent/userConstent'
 
 export interface IRegisterRequestBody {
@@ -6,6 +7,18 @@ export interface IRegisterRequestBody {
     phone: string
     password: string
     consent: boolean
+}
+
+export interface IForgotPasswordRequestBody {
+    email: string
+}
+
+export interface IResetPasswordRequestBody {
+    newPassword: string
+}
+export interface IChangePasswordRequestBody {
+    oldPassword: string
+    newPassword: string
 }
 
 export interface ILoginRequestBody {
@@ -40,4 +53,12 @@ export interface IUser {
         token: string | null
     }
     lastLoginAt: Date | null
+}
+
+export interface IUserWithId extends IUser {
+    _id: string
+}
+
+export interface IDecriptedJwt extends JwtPayload {
+    userId: string
 }

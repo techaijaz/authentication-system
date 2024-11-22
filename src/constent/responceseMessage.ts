@@ -10,5 +10,10 @@ export default {
     INVALID_ACCOUNT_CONFIRMATION_TOKEN_OR_CODE: 'Invalid account confirmation token or code',
     ACCOUNT_ALREADY_CONFIRMED: 'Account already confirmed',
     INVALID_CREDENTIALS: 'Invalid E-mail or Password, Please try again.',
-    UNAUTHORIZED: 'Unauthorized, please login first'
+    UNAUTHORIZED: 'Unauthorized, please login first',
+    ACCOUNT_CONFIRMATION_REQUIRED: 'Account confirmation required',
+    PASSWORD_RESET_URL_EXPIRED: 'Password reset url expired',
+    INVALID_REQUEST: 'Invalid request',
+    INVALID_OLD_PASSWORD: 'Invalid old password',
+    PASSWORD_MATCHING_WITH_OLD_PASSWORD: 'Password matching with old password'
 }
